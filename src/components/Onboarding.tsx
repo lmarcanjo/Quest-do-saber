@@ -19,13 +19,16 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
     objective: 'escola',
     level: 'iniciante',
     mode: 'simple',
+    selectedSubject: 'Geral',
   });
 
-  const nextStep = () => setStep(s => s + 1);
-  const prevStep = () => setStep(s => s - 1);
+  const nextStep = () => setStep(s => Math.min(s + 1, 5));
+  const prevStep = () => setStep(s => Math.max(s - 1, 1));
 
   const handleComplete = () => {
-    onComplete(profile);
+    if (step === 5) {
+      onComplete(profile);
+    }
   };
 
   return (
@@ -42,17 +45,17 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
             <CardHeader className="bg-transparent border-b border-white/10">
               <div className="flex justify-between items-center mb-2">
                 <div className="flex gap-1">
-                  {[1, 2, 3, 4].map(i => (
+                  {[1, 2, 3, 4, 5].map(i => (
                     <div
                       key={i}
-                      className={`h-1.5 w-8 rounded-full transition-all ${
+                      className={`h-1.5 w-6 rounded-full transition-all ${
                         i <= step ? 'bg-brand-primary' : 'bg-white/10'
                       }`}
                     />
                   ))}
                 </div>
                 <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">
-                  Passo {step} de 4
+                  Passo {step} de 5
                 </span>
               </div>
               <CardTitle className="text-2xl font-black text-white flex items-center gap-2">
@@ -60,12 +63,14 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                 {step === 2 && <><BookOpen className="text-brand-secondary" /> Seu Objetivo</>}
                 {step === 3 && <><Trophy className="text-brand-accent" /> Seu Nível</>}
                 {step === 4 && <><Sword className="text-brand-secondary" /> Escolha seu Modo</>}
+                {step === 5 && <><BookOpen className="text-brand-primary" /> Qual Matéria?</>}
               </CardTitle>
               <CardDescription className="text-white/60 font-medium">
                 {step === 1 && "Vamos começar sua jornada de conhecimento."}
                 {step === 2 && "O que você deseja aprender hoje?"}
                 {step === 3 && "Como você avalia seu conhecimento atual?"}
                 {step === 4 && "Como você prefere aprender?"}
+                {step === 5 && "Escolha o foco dos seus estudos."}
               </CardDescription>
             </CardHeader>
 
@@ -211,6 +216,26 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                   )}
 
                   <div className="flex gap-3 pt-4">
+                    <Button variant="ghost" onClick={prevStep} className="flex-1 rounded-xl font-bold text-white/60 hover:text-white hover:bg-white/10">Voltar</Button>
+                    <Button className="flex-[2] btn-primary rounded-2xl font-bold h-14" onClick={nextStep}>Continuar</Button>
+                  </div>
+                </div>
+              )}
+
+              {step === 5 && (
+                <div className="space-y-4">
+                  <div className="flex flex-wrap gap-2">
+                    {['Português', 'Matemática', 'Ciências', 'História', 'Geografia', 'Inglês', 'Geral'].map(subj => (
+                      <div
+                        key={subj}
+                        onClick={() => setProfile({ ...profile, selectedSubject: subj as any })}
+                        className={`glass-pill ${profile.selectedSubject === subj ? 'active' : ''}`}
+                      >
+                        {subj}
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex gap-3 pt-8">
                     <Button variant="ghost" onClick={prevStep} className="flex-1 rounded-xl font-bold text-white/60 hover:text-white hover:bg-white/10">Voltar</Button>
                     <Button className="flex-[2] btn-primary rounded-2xl font-bold h-14" onClick={handleComplete}>Iniciar Jornada</Button>
                   </div>

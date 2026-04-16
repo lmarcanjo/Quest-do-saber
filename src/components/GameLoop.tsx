@@ -11,10 +11,11 @@ import { Heart, Trophy, Zap, ChevronRight, AlertCircle, CheckCircle2, Loader2, S
 
 interface GameLoopProps {
   profile: UserProfile;
+  initialGameState?: GameState;
 }
 
-export default function GameLoop({ profile }: GameLoopProps) {
-  const [gameState, setGameState] = useState<GameState>({
+export default function GameLoop({ profile, initialGameState }: GameLoopProps) {
+  const [gameState, setGameState] = useState<GameState>(initialGameState || {
     xp: 0,
     level: 1,
     lives: 5,
@@ -38,13 +39,22 @@ export default function GameLoop({ profile }: GameLoopProps) {
     init();
   }, []);
 
+  useEffect(() => {
+    localStorage.setItem('eduquest_gamestate', JSON.stringify(gameState));
+  }, [gameState]);
+
   const loadNextChallenge = async () => {
     setLoading(true);
     setSelectedOption(null);
     setFeedback(null);
-    const challenge = await generateChallenge(profile, gameState);
-    setCurrentChallenge(challenge);
-    setLoading(false);
+    try {
+      const challenge = await generateChallenge(profile, gameState);
+      setCurrentChallenge(challenge);
+    } catch (error) {
+      console.error("Failed to load challenge:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleAnswer = (option: string) => {
@@ -57,21 +67,27 @@ export default function GameLoop({ profile }: GameLoopProps) {
         correct: true,
         message: currentChallenge?.explanation || "Excelente trabalho!",
       });
-      const newXp = gameState.xp + (currentChallenge?.reward.xp || 10);
-      const newLevel = Math.floor(newXp / 100) + 1;
-      setGameState(s => ({
-        ...s,
-        xp: newXp,
-        level: newLevel,
-      }));
+      setGameState(prev => {
+        const newXp = prev.xp + (currentChallenge?.reward.xp || 15);
+        const newLevel = Math.floor(newXp / 100) + 1;
+        const newHistory = [...prev.history, currentChallenge?.question || ''].slice(-10);
+        return {
+          ...prev,
+          xp: newXp,
+          level: newLevel,
+          history: newHistory,
+          currentMission: currentChallenge?.context
+        };
+      });
     } else {
       setFeedback({
         correct: false,
         message: `Ops! A resposta correta era: ${currentChallenge?.correctAnswer}. ${currentChallenge?.explanation}`,
       });
-      setGameState(s => ({
-        ...s,
-        lives: Math.max(0, s.lives - 1),
+      setGameState(prev => ({
+        ...prev,
+        lives: Math.max(0, prev.lives - 1),
+        history: [...prev.history, currentChallenge?.question || ''].slice(-10)
       }));
     }
   };
@@ -116,7 +132,10 @@ export default function GameLoop({ profile }: GameLoopProps) {
               <div className="flex items-center gap-2">
                 <span className="font-black text-white">Nível {gameState.level}</span>
                 <Badge variant="secondary" className="bg-brand-secondary/20 text-brand-secondary border-brand-secondary/30">
-                  {profile.mode === 'adventure' ? 'Aventureiro' : 'Estudante'}
+                  {profile.selectedSubject || 'Geral'}
+                </Badge>
+                <Badge variant="outline" className="text-[10px] border-white/20 text-white/50">
+                  {profile.mode === 'adventure' ? 'Aventura' : 'Simples'}
                 </Badge>
               </div>
               <div className="w-32 mt-1">
@@ -158,6 +177,12 @@ export default function GameLoop({ profile }: GameLoopProps) {
               animate={{ opacity: 1, y: 0 }}
               className="space-y-6"
             >
+              {currentChallenge.context.includes('[Modo Offline]') && (
+                <div className="bg-amber-500/20 border border-amber-500/30 text-amber-200 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider w-fit">
+                  Modo de Segurança (IA em Repouso)
+                </div>
+              )}
+
               {profile.mode === 'adventure' && (
                 <div className="glass-card p-4 flex gap-4 items-start border-brand-primary/20">
                   <div className="bg-brand-primary/20 p-2 rounded-lg text-brand-primary">
@@ -232,7 +257,15 @@ export default function GameLoop({ profile }: GameLoopProps) {
                 </motion.div>
               )}
             </motion.div>
-          ) : null}
+          ) : (
+            <div className="text-center py-20 space-y-6">
+              <AlertCircle size={48} className="mx-auto text-brand-error opacity-50" />
+              <p className="text-white/60 font-medium">Não conseguimos carregar o desafio.</p>
+              <Button onClick={loadNextChallenge} className="btn-primary px-8">
+                Tentar Novamente
+              </Button>
+            </div>
+          )}
         </AnimatePresence>
       </main>
 
