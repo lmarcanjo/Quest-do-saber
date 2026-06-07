@@ -4,7 +4,7 @@
 [![React](https://img.shields.io/badge/React-19.x-61DAFB?logo=react)](https://react.dev/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind--CSS-v4-06B6D4?logo=tailwindcss)](https://tailwindcss.com/)
 [![Gemini AI](https://img.shields.io/badge/Google--Gemini-Flash-12B0E8?logo=google-gemini)](https://ai.google.dev/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: Proprietary](https://img.shields.io/badge/Licen%C3%A7a-Propriet%C3%A1ria-red.svg)](LICENSE)
 
 **EduQuest** é um aplicativo educacional gamificado inovador que transforma o estudo tradicional em uma jornada emocionante de RPG (Role-Playing Game). Alimentado pela inteligência artificial do **Google Gemini (Flash)**, o EduQuest cria desafios personalizados, narrativas imersivas e perguntas adaptativas em tempo real, moldadas de acordo com o perfil, idade e objetivos do usuário.
 
@@ -109,7 +109,7 @@ Desenvolvido por **Luã Martins Arcanjo**:
 
 ## 📜 Licença
 
-Este projeto está sob a licença MIT. Consulte o arquivo [LICENSE](LICENSE) para obter mais informações.
+Este projeto é proprietário sob direitos autorais de **Luã Martins Arcanjo**. Todo o uso, cópia, modificação ou redistribuição não autorizada é estritamente proibido. Consulte o arquivo [LICENSE](LICENSE) para obter os termos completos de proteção intelectual.
 
 ---
 
